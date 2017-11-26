@@ -9,15 +9,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sstream>
+#include <iterator>
+#include <map>
+
 
 using namespace std;
 
-void readLog(string cmd);
-void parseCommit(string str);
+void parseCommit(string str, map <string, int> &nodes);
+void addNode(string str, map <string, int> &nodes);
 
 int main(int argc, const char * argv[]) {
     
-    // insert code here...
+    // Validate arguments
     string cmd;
     if (argc == 1)
         cmd = "git log --pretty=format:'%h - %ae' --name-status --reverse";
@@ -28,20 +31,12 @@ int main(int argc, const char * argv[]) {
         return 0;
     }
     
-    readLog(cmd);
-    
-    
-    return 0;
-}
-
-void readLog(string cmd) {
-    
+    // Read the log into a stringstream
     stringstream stream;
     FILE * file;
     const int max_buffer = 256;
     char buffer[max_buffer];
     cmd.append(" 2>&1");
-    
     file = popen(cmd.c_str(), "r");
     if (file) {
         while (!feof(file))
@@ -49,26 +44,43 @@ void readLog(string cmd) {
         pclose(file);
     }
     
+    // Maps to store all nodes and edges
+    map <string, int> nodes;
+    map <string, int> edges;
+    
+    // Parse the stringstream and extract each commit
     int count = 0;
     string line;
     string commit = "";
     string hash = "0123456789abcdef";
     while (getline(stream, line)) {
+        
         if (hash.find(line[0]) != std::string::npos) {
             // Reached new commit line
-            if (!commit.empty())
-                parseCommit(commit);
+            if (!commit.empty()) {
+                // Create edges from previous commit
+            }
             commit = line;
             count ++;
         } else {
-            // Add files to current commit
+            if (string("AMDR").find(line[0]) != std::string::npos) {
+                // Add node for file
+                addNode(line, nodes);
+            }
+            // Add file to current commit
             commit+= '\n' + line;
         }
     }
     cout << "Total: " << count << endl;
+    
+    return 0;
 }
 
-void parseCommit(string str) {
+void parseCommit(string str, map <string, int> &nodes) {
     
+    cout << str << endl;
+}
+
+void addNode(string str, map <string, int> &nodes) {
     cout << str << endl;
 }
