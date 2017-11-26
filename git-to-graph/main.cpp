@@ -10,45 +10,34 @@
 #include <stdlib.h>
 #include <sstream>
 
-
 using namespace std;
 
-string GetStdoutFromCommand(string cmd) {
-    
-    string data;
-    FILE * stream;
-    const int max_buffer = 256;
-    char buffer[max_buffer];
-    cmd.append(" 2>&1");
-    
-    stream = popen(cmd.c_str(), "r");
-    if (stream) {
-        while (!feof(stream))
-            if (fgets(buffer, max_buffer, stream) != NULL) data.append(buffer);
-        pclose(stream);
-    }
-    return data;
-}
 
 void readLog(string cmd) {
     
-    stringstream data;
-    FILE * stream;
+    stringstream stream;
+    FILE * file;
     const int max_buffer = 256;
     char buffer[max_buffer];
     cmd.append(" 2>&1");
     
-    stream = popen(cmd.c_str(), "r");
-    if (stream) {
-        while (!feof(stream))
-            if (fgets(buffer, max_buffer, stream) != NULL) data << buffer;
-        pclose(stream);
+    file = popen(cmd.c_str(), "r");
+    if (file) {
+        while (!feof(file))
+            if (fgets(buffer, max_buffer, file) != NULL) stream << buffer;
+        pclose(file);
     }
     
+    int count = 0;
     string line;
-    while (getline(data, line)) {
-        cout << line << endl;
+    while (getline(stream, line)) {
+        if (line[0] == 'A') {
+            cout << line << endl;
+            count ++;
+        }
     }
+    cout << "Total: " << count << endl;
+    
 }
 
 int main(int argc, const char * argv[]) {
@@ -63,13 +52,6 @@ int main(int argc, const char * argv[]) {
         cout << "Improper arguments.";
         return 0;
     }
-    
-    /*
-    string log = GetStdoutFromCommand(cmd);
-    cout << "git log:\n" << log << endl;
-    cout << log.max_size() << endl;
-    cout << log.size() << endl;
-     */
     
     readLog(cmd);
     
