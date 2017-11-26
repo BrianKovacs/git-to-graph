@@ -103,7 +103,8 @@ void addNode(const string &str, int commit, NodeMap &nodes) {
         if(lb != nodes.end() && !(nodes.key_comp()(file, lb->first)))
         {
             // key already exists
-            // update lb->second if you care to
+            // update lb->second
+            lb->second++;
         }
         else
         {
