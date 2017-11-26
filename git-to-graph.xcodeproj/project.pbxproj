@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D30514241FCAAEF2004A31DD /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = D30514231FCAAEF2004A31DD /* README.md */; };
 		D333D8BE1FCAA2A500920710 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D333D8BD1FCAA2A500920710 /* main.cpp */; };
 /* End PBXBuildFile section */
 
@@ -23,6 +24,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		D30514221FCAAEF2004A31DD /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		D30514231FCAAEF2004A31DD /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		D333D8BA1FCAA2A500920710 /* git-to-graph */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "git-to-graph"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D333D8BD1FCAA2A500920710 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -41,6 +44,8 @@
 		D333D8B11FCAA2A500920710 = {
 			isa = PBXGroup;
 			children = (
+				D30514221FCAAEF2004A31DD /* LICENSE */,
+				D30514231FCAAEF2004A31DD /* README.md */,
 				D333D8BC1FCAA2A500920710 /* git-to-graph */,
 				D333D8BB1FCAA2A500920710 /* Products */,
 			);
@@ -119,6 +124,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D30514241FCAAEF2004A31DD /* README.md in Sources */,
 				D333D8BE1FCAA2A500920710 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -248,6 +254,7 @@
 				D333D8C31FCAA2A500920710 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
