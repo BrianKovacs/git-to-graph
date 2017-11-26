@@ -12,33 +12,8 @@
 
 using namespace std;
 
-
-void readLog(string cmd) {
-    
-    stringstream stream;
-    FILE * file;
-    const int max_buffer = 256;
-    char buffer[max_buffer];
-    cmd.append(" 2>&1");
-    
-    file = popen(cmd.c_str(), "r");
-    if (file) {
-        while (!feof(file))
-            if (fgets(buffer, max_buffer, file) != NULL) stream << buffer;
-        pclose(file);
-    }
-    
-    int count = 0;
-    string line;
-    while (getline(stream, line)) {
-        if (line[0] == 'A') {
-            cout << line << endl;
-            count ++;
-        }
-    }
-    cout << "Total: " << count << endl;
-    
-}
+void readLog(string cmd);
+void parseCommit(string str);
 
 int main(int argc, const char * argv[]) {
     
@@ -57,4 +32,43 @@ int main(int argc, const char * argv[]) {
     
     
     return 0;
+}
+
+void readLog(string cmd) {
+    
+    stringstream stream;
+    FILE * file;
+    const int max_buffer = 256;
+    char buffer[max_buffer];
+    cmd.append(" 2>&1");
+    
+    file = popen(cmd.c_str(), "r");
+    if (file) {
+        while (!feof(file))
+            if (fgets(buffer, max_buffer, file) != NULL) stream << buffer;
+        pclose(file);
+    }
+    
+    int count = 0;
+    string line;
+    string commit = "";
+    string hash = "0123456789abcdef";
+    while (getline(stream, line)) {
+        if (hash.find(line[0]) != std::string::npos) {
+            // Reached new commit line
+            if (!commit.empty())
+                parseCommit(commit);
+            commit = line;
+            count ++;
+        } else {
+            // Add files to current commit
+            commit+= '\n' + line;
+        }
+    }
+    cout << "Total: " << count << endl;
+}
+
+void parseCommit(string str) {
+    
+    cout << str << endl;
 }
