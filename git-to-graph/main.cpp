@@ -12,11 +12,13 @@
 #include <iterator>
 #include <map>
 
-
 using namespace std;
 
-void parseCommit(string str, map <string, int> &nodes);
-void addNode(string str, map <string, int> &nodes);
+typedef map<string, int> NodeMap;
+typedef map<string, int> EdgeMap;
+
+bool isHash(const string &str);
+void addNode(const string &str, int commit, NodeMap &nodes);
 
 int main(int argc, const char * argv[]) {
     
@@ -45,42 +47,70 @@ int main(int argc, const char * argv[]) {
     }
     
     // Maps to store all nodes and edges
-    map <string, int> nodes;
+    NodeMap nodes;
     map <string, int> edges;
     
     // Parse the stringstream and extract each commit
-    int count = 0;
+    int c = 0;
+    int f = 0;
     string line;
-    string commit = "";
-    string hash = "0123456789abcdef";
     while (getline(stream, line)) {
-        
-        if (hash.find(line[0]) != std::string::npos) {
-            // Reached new commit line
-            if (!commit.empty()) {
-                // Create edges from previous commit
-            }
-            commit = line;
-            count ++;
-        } else {
-            if (string("AMDR").find(line[0]) != std::string::npos) {
-                // Add node for file
-                addNode(line, nodes);
-            }
-            // Add file to current commit
-            commit+= '\n' + line;
+        // Check if first line starts with hash (so this is a new commit)
+        if (isHash(line)) {
+            // Create edges from the previous commit
+            //...
+            
+            // Advance the commit number
+            ++c;
+        } else if (!line.empty()) {
+            // If line isn't empty, add the file to the current commit
+            addNode(line, c, nodes);
+            ++f;
         }
     }
-    cout << "Total: " << count << endl;
+    cout << "Commits:\t" << c << endl << "Files:\t" << f << endl;
+    
+    // printing map gquiz1
+    NodeMap::iterator itr;
+    cout << "\nNode Map: \n";
+    cout << "\tDEG\tFILE\n";
+    for (itr = nodes.begin(); itr != nodes.end(); ++itr)
+    {
+        cout << '\t' << itr->second
+        << '\t' << itr->first << '\n';
+    }
+    cout << endl;
     
     return 0;
 }
 
-void parseCommit(string str, map <string, int> &nodes) {
-    
-    cout << str << endl;
+bool isHash(const string &s) {
+    return ((s[0] >= '0' && s[0] <= '9') || (s[0] >= 'a' && s[0] <= 'f'));
 }
 
-void addNode(string str, map <string, int> &nodes) {
-    cout << str << endl;
+void addNode(const string &str, int commit, NodeMap &nodes) {
+    if (str[0] == 'R') {
+        // File was renamed
+        // ...
+    } else {
+        //cout << str << endl;
+        //cout << str.substr(str.find_first_of('\t')+1) << endl;
+        
+        // Remove status and \t character from the file
+        string file = str.substr(str.find_first_of('\t')+1);
+        NodeMap::iterator lb = nodes.lower_bound(file);
+        
+        if(lb != nodes.end() && !(nodes.key_comp()(file, lb->first)))
+        {
+            // key already exists
+            // update lb->second if you care to
+        }
+        else
+        {
+            // the key does not exist in the map
+            // Use lb as a hint to insert, so it can avoid another lookup
+            nodes.insert(lb, NodeMap::value_type(file, 1));
+        }
+    }
 }
+
