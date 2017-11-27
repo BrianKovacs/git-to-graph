@@ -6,6 +6,7 @@
 //
 
 #include <iostream>
+#include <fstream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sstream>
@@ -22,6 +23,7 @@ bool isHash(const string &str);
 int addNode(const string &file, const string &status, int commit, NodeMap &nodes);
 void createEdges(const vector<int> &edgeGroup, int commit, EdgeMap &edges);
 void addEdge(int source, int target, EdgeMap &edges);
+void writeToFile(const NodeMap &nodes, const EdgeMap &edges);
 
 int main(int argc, const char * argv[])
 {
@@ -36,7 +38,7 @@ int main(int argc, const char * argv[])
         cout << "Improper arguments.";
         return 0;
     }
-    
+
     // Read the log into a stringstream
     stringstream stream;
     FILE * console;
@@ -49,11 +51,11 @@ int main(int argc, const char * argv[])
             if (fgets(buffer, max_buffer, console) != NULL) stream << buffer;
         pclose(console);
     }
-    
+
     // Maps to store all nodes and edges
     NodeMap nodes;
     EdgeMap edges;
-    
+
     int c = 0;
     int f = 0;
     string line;
@@ -85,9 +87,9 @@ int main(int argc, const char * argv[])
             }
         }
     }
-    
+
     cout << "Commits:\t" << c << endl << "Files:\t" << f << endl;
-    
+
     /*
     // Print all nodes
     NodeMap::iterator i;
@@ -100,7 +102,7 @@ int main(int argc, const char * argv[])
     }
     cout << endl;
     */
-    
+
     /*
     // Print all edges
     EdgeMap::iterator j;
@@ -116,7 +118,9 @@ int main(int argc, const char * argv[])
     }
     cout << endl;
     */
-    
+
+    writeToFile(nodes, edges);
+
     cout << "End\n";
     return 0;
 }
@@ -184,3 +188,44 @@ void addEdge(int source, int target, EdgeMap &edges)
     }
 }
 
+void writeToFile(const NodeMap &nodes, const EdgeMap &edges)
+{
+    ofstream file ("example.gexf");
+    if (file.is_open())
+    {
+        file << R"(<?xml version="1.0" encoding="UTF-8"?>
+<gexf xmlns="http://www.gexf.net/1.3" version="1.3" xmlns:viz="http://www.gexf.net/1.3/viz" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gexf.net/1.3 http://www.gexf.net/1.3/gexf.xsd">
+  <graph mode="static" defaultedgetype="undirected">)" << endl;
+
+        // Print all nodes
+        file << "    <nodes>" << endl;
+        NodeMap::const_iterator i;
+        for (i = nodes.begin(); i != nodes.end(); ++i)
+        {
+            file << "      <node id='" << i->second <<
+            "' lable='" << i->first << "'/>" << endl;
+        }
+        file << "    </nodes>" << endl;
+
+        // Print all edges
+        file << "    <edges>" << endl;
+        EdgeMap::const_iterator j;
+        int id = 0;
+        for (j = edges.begin(); j != edges.end(); ++j)
+        {
+            map<int, int>::const_iterator k;
+            for(k=j->second.begin(); k!=j->second.end(); ++k){
+                file << "      <edge id='" << ++id
+                << "' source='" << j->first
+                << "' target='" << k->first
+                << "' weight='" << k->second << "'/>" << endl;
+            }
+        }
+        file << "    </edges>" << endl;
+        file << "  </graph>" << endl;
+        file << "</gexf>" << endl;
+
+        file.close();
+    }
+    else cout << "Unable to open file";
+}
