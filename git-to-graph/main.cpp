@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <sstream>
 #include <iterator>
+#include <vector>
 #include <map>
 
 using namespace std;
@@ -18,10 +19,12 @@ typedef map<string, int> NodeMap;
 typedef map<string, int> EdgeMap;
 
 bool isHash(const string &str);
-void addNode(const string &str, int commit, NodeMap &nodes);
+void addNode(const string &file, const string &status, int commit, NodeMap &nodes);
+void createEdges(const vector<string> &edgeGroup, int commit);
+void addEdge(const string &edge);
 
-int main(int argc, const char * argv[]) {
-    
+int main(int argc, const char * argv[])
+{
     // Validate arguments
     string cmd;
     if (argc == 1)
@@ -35,42 +38,54 @@ int main(int argc, const char * argv[]) {
     
     // Read the log into a stringstream
     stringstream stream;
-    FILE * file;
+    FILE * console;
     const int max_buffer = 256;
     char buffer[max_buffer];
     cmd.append(" 2>&1");
-    file = popen(cmd.c_str(), "r");
-    if (file) {
-        while (!feof(file))
-            if (fgets(buffer, max_buffer, file) != NULL) stream << buffer;
-        pclose(file);
+    console = popen(cmd.c_str(), "r");
+    if (console) {
+        while (!feof(console))
+            if (fgets(buffer, max_buffer, console) != NULL) stream << buffer;
+        pclose(console);
     }
     
     // Maps to store all nodes and edges
     NodeMap nodes;
-    map <string, int> edges;
+    EdgeMap edges;
     
-    // Parse the stringstream and extract each commit
+    
     int c = 0;
     int f = 0;
     string line;
+    string file;
+    string status;
+    vector<string> edgeGroup;
+    // Parse the stringstream and extract each commit
     while (getline(stream, line)) {
         // Check if first line starts with hash (so this is a new commit)
         if (isHash(line)) {
             // Create edges from the previous commit
-            //...
-            
+            createEdges(edgeGroup, c);
+            // Empty the edge group
+            edgeGroup.clear();
             // Advance the commit number
             ++c;
         } else if (!line.empty()) {
             // If line isn't empty, add the file to the current commit
-            addNode(line, c, nodes);
+            // Separate file and status
+            file = line.substr(line.find_first_of('\t')+1);
+            status = line.substr(0, line.find_first_of('\t'));
+            // Add file to node map
+            addNode(file, status, c, nodes);
+            // Add file to current enge group
+            edgeGroup.push_back(file);
+            // Advance the commit number
             ++f;
         }
     }
-    cout << "Commits:\t" << c << endl << "Files:\t" << f << endl;
     
-    // printing map gquiz1
+    /*
+    cout << "Commits:\t" << c << endl << "Files:\t" << f << endl;
     NodeMap::iterator itr;
     cout << "\nNode Map: \n";
     cout << "\tDEG\tFILE\n";
@@ -80,38 +95,47 @@ int main(int argc, const char * argv[]) {
         << '\t' << itr->first << '\n';
     }
     cout << endl;
+     */
     
     return 0;
 }
 
-bool isHash(const string &s) {
+bool isHash(const string &s)
+{
     return ((s[0] >= '0' && s[0] <= '9') || (s[0] >= 'a' && s[0] <= 'f'));
 }
 
-void addNode(const string &str, int commit, NodeMap &nodes) {
-    if (str[0] == 'R') {
+void addNode(const string &file, const string &status, int commit, NodeMap &nodes)
+{
+    if (status[0] == 'R') {
         // File was renamed
         // ...
     } else {
-        //cout << str << endl;
-        //cout << str.substr(str.find_first_of('\t')+1) << endl;
-        
-        // Remove status and \t character from the file
-        string file = str.substr(str.find_first_of('\t')+1);
         NodeMap::iterator lb = nodes.lower_bound(file);
-        
         if(lb != nodes.end() && !(nodes.key_comp()(file, lb->first)))
         {
             // key already exists
             // update lb->second
             lb->second++;
-        }
-        else
-        {
+        } else {
             // the key does not exist in the map
             // Use lb as a hint to insert, so it can avoid another lookup
             nodes.insert(lb, NodeMap::value_type(file, 1));
         }
     }
+}
+
+void createEdges(const vector<string> &edgeGroup, int commit)
+{
+    cout << "Commit " << commit << endl;
+    vector<string>::const_iterator i;
+    for(i=edgeGroup.begin(); i!=edgeGroup.end(); ++i){
+        cout << '\t' << (*i) << endl;
+    }
+}
+
+void addEdge(const string &edge)
+{
+    
 }
 
