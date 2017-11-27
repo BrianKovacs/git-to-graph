@@ -110,14 +110,20 @@ int main(int argc, const char * argv[])
         << '\t' << i->first << '\n';
     }
     cout << endl;
-    
+    */
+    /*
     EdgeMap::iterator j;
     cout << "\nEdge Map: \n";
     cout << "\tW\tEDGE\n";
     for (j = edges.begin(); j != edges.end(); ++j)
     {
-        cout << '\t' << j->second
-        << '\t' << j->first << '\n';
+//        cout << '\t' << j->second
+//        << '\t' << j->first << '\n';
+        cout << j->first << endl;
+        vector<Target>::const_iterator k;
+        for(k=j->second.begin(); k!=j->second.end(); ++k){
+            cout << '\t' << (*k).id << endl;
+        }
     }
     cout << endl;
     */
@@ -151,11 +157,11 @@ int addNode(const string &file, const string &status, int commit, NodeMap &nodes
 void createEdges(const vector<int> &edgeGroup, int commit, EdgeMap &edges)
 {
     
-    cout << "Commit " << commit << endl;
-    vector<int>::const_iterator t;
-    for(t=edgeGroup.begin(); t!=edgeGroup.end(); ++t){
-        cout << '\t' << (*t) << endl;
-    }
+//    cout << "Commit " << commit << endl;
+//    vector<int>::const_iterator t;
+//    for(t=edgeGroup.begin(); t!=edgeGroup.end(); ++t){
+//        cout << '\t' << (*t) << endl;
+//    }
     
     /*
     string edge;
@@ -202,10 +208,15 @@ void addEdge(int source, int target, EdgeMap &edges)
         // key already exists
         // update lb->second
 //        lb->second++;
+        
+        Target t = {target, 1};
+        lb->second.push_back(t);
     } else {
         // the key does not exist in the map
         // Use lb as a hint to insert, so it can avoid another lookup
         edges.insert(lb, EdgeMap::value_type(source, vector<Target>()));
+        Target t = {target, 1};
+        lb->second.push_back(t);
     }
 }
 
