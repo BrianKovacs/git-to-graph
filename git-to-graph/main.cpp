@@ -15,18 +15,8 @@
 
 using namespace std;
 
-struct Target {
-    int id;
-    int weight;
-};
-
-//struct nodeData {
-//    int id;
-//    vector<target> targets;
-//};
-
 typedef map<string, int> NodeMap;
-typedef map<int, vector<Target>> EdgeMap;
+typedef map<int, map<int, int>> EdgeMap;
 
 bool isHash(const string &str);
 int addNode(const string &file, const string &status, int commit, NodeMap &nodes);
@@ -88,10 +78,8 @@ int main(int argc, const char * argv[])
             status = line.substr(0, line.find_first_of('\t'));
             // If status is not rename...
             if (status[0] != 'R') {
-                // Add file to node map
+                // Add file to node map and to current edge group
                 edgeGroup.push_back(addNode(file, status, c, nodes));
-                // Add file to current enge group
-//                edgeGroup.push_back(file);
                 // Advance the commit number
                 ++f;
             }
@@ -101,6 +89,7 @@ int main(int argc, const char * argv[])
     cout << "Commits:\t" << c << endl << "Files:\t" << f << endl;
     
     /*
+    // Print all nodes
     NodeMap::iterator i;
     cout << "\nNode Map: \n";
     cout << "\tDEG\tFILE\n";
@@ -111,22 +100,23 @@ int main(int argc, const char * argv[])
     }
     cout << endl;
     */
+    
     /*
+    // Print all edges
     EdgeMap::iterator j;
     cout << "\nEdge Map: \n";
     cout << "\tW\tEDGE\n";
     for (j = edges.begin(); j != edges.end(); ++j)
     {
-//        cout << '\t' << j->second
-//        << '\t' << j->first << '\n';
         cout << j->first << endl;
-        vector<Target>::const_iterator k;
+        map<int, int>::const_iterator k;
         for(k=j->second.begin(); k!=j->second.end(); ++k){
-            cout << '\t' << (*k).id << endl;
+            cout << "  -" << k->first << ':' << k->second << endl;
         }
     }
     cout << endl;
     */
+    
     cout << "End\n";
     return 0;
 }
@@ -143,8 +133,6 @@ int addNode(const string &file, const string &status, int commit, NodeMap &nodes
     if(lb != nodes.end() && !(nodes.key_comp()(file, lb->first)))
     {
         // key already exists
-        // update lb->second
-//        lb->second++;
         return lb->second;
     } else {
         // the key does not exist in the map
@@ -156,31 +144,18 @@ int addNode(const string &file, const string &status, int commit, NodeMap &nodes
 
 void createEdges(const vector<int> &edgeGroup, int commit, EdgeMap &edges)
 {
-    
-//    cout << "Commit " << commit << endl;
-//    vector<int>::const_iterator t;
-//    for(t=edgeGroup.begin(); t!=edgeGroup.end(); ++t){
-//        cout << '\t' << (*t) << endl;
-//    }
-    
     /*
-    string edge;
-    vector<string>::const_iterator i;
-    vector<string>::const_iterator j;
-    for(i=edgeGroup.begin(); i!=edgeGroup.end(); ++i){
-        for(j=i; j!=edgeGroup.end(); ++j){
-//        cout << "\t\t" << (*i) << "<--->" << (*j) << endl;
-            edge = (*i) + ":" + (*j);
-            addEdge(edge, edges);
-        }
+    // Print all fils grouped by commit
+    cout << "Commit " << commit << endl;
+    vector<int>::const_iterator t;
+    for(t=edgeGroup.begin(); t!=edgeGroup.end(); ++t){
+        cout << '\t' << (*t) << endl;
     }
      */
     vector<int>::const_iterator i;
     vector<int>::const_iterator j;
     for(i=edgeGroup.begin(); i!=edgeGroup.end(); ++i){
         for(j=i; j!=edgeGroup.end(); ++j){
-            //        cout << "\t\t" << (*i) << "<--->" << (*j) << endl;
-//            edge = (*i) + ":" + (*j);
             addEdge((*i), (*j), edges);
         }
     }
@@ -188,35 +163,24 @@ void createEdges(const vector<int> &edgeGroup, int commit, EdgeMap &edges)
 
 void addEdge(int source, int target, EdgeMap &edges)
 {
-    /*
-    EdgeMap::iterator lb = edges.lower_bound(edge);
-    if(lb != edges.end() && !(edges.key_comp()(edge, lb->first)))
-    {
-        // key already exists
-        // update lb->second
-        lb->second++;
-    } else {
-        // the key does not exist in the map
-        // Use lb as a hint to insert, so it can avoid another lookup
-        edges.insert(lb, EdgeMap::value_type(edge, 1));
-    }
-     */
-    
     EdgeMap::iterator lb = edges.lower_bound(source);
     if(lb != edges.end() && !(edges.key_comp()(source, lb->first)))
     {
         // key already exists
         // update lb->second
-//        lb->second++;
-        
-        Target t = {target, 1};
-        lb->second.push_back(t);
+        map<int, int>::iterator lb2 = lb->second.lower_bound(target);
+        if(lb2 != lb->second.end() && !(lb->second.key_comp()(target, lb2->first)))
+        {
+            lb2->second++;
+        } else {
+            lb->second.insert(pair<int, int>(target, 1));
+        }
     } else {
         // the key does not exist in the map
         // Use lb as a hint to insert, so it can avoid another lookup
-        edges.insert(lb, EdgeMap::value_type(source, vector<Target>()));
-        Target t = {target, 1};
-        lb->second.push_back(t);
+        map<int, int> m;
+        m.insert(pair<int, int>(target, 1));
+        edges.insert(lb, EdgeMap::value_type(source, m));
     }
 }
 
