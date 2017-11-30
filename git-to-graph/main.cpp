@@ -216,7 +216,7 @@ void writeToFile(string outFile, const NodeMap &nodes, const EdgeMap &edges)
         for (i = nodes.begin(); i != nodes.end(); ++i)
         {
             file << "      <node id='" << i->second <<
-            "' lable='" << i->first << "'/>" << endl;
+            "' label='" << i->first << "'/>" << endl;
         }
         file << "    </nodes>" << endl;
 
