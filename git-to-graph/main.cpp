@@ -23,21 +23,26 @@ bool isHash(const string &str);
 int addNode(const string &file, const string &status, int commit, NodeMap &nodes);
 void createEdges(const vector<int> &edgeGroup, int commit, EdgeMap &edges);
 void addEdge(int source, int target, EdgeMap &edges);
-void writeToFile(const NodeMap &nodes, const EdgeMap &edges);
+void writeToFile(string outFile, const NodeMap &nodes, const EdgeMap &edges);
 
 int main(int argc, const char * argv[])
 {
-    cout << "Start\n";
     // Validate arguments
     string cmd;
-    if (argc == 1)
+    string outFile;
+    if (argc == 2) {
         cmd = "git log --pretty=format:'%h - %ae' --name-status --reverse";
-    else if (argc == 2)
+        outFile = string(argv[1]);
+    } else if (argc == 3) {
         cmd = "git -C " + string(argv[1]) + " log --pretty=format:'%h - %ae' --name-status --reverse";
-    else {
-        cout << "Improper arguments.";
+        outFile = string(argv[2]);
+    } else {
+        cout << "usage: git-to-graph out_file.gexf" << endl;
+        cout << "usage: git-to-graph git_directory out_file.gexf" << endl;
         return 0;
     }
+    
+    cout << "Start\n";
 
     // Read the log into a stringstream
     stringstream stream;
@@ -79,7 +84,7 @@ int main(int argc, const char * argv[])
             file = line.substr(line.find_first_of('\t')+1);
             status = line.substr(0, line.find_first_of('\t'));
             // If status is not rename...
-            if (status[0] != 'R') {
+            if (status[0] != 'R' && status[0] !='D') {
                 // Add file to node map and to current edge group
                 edgeGroup.push_back(addNode(file, status, c, nodes));
                 // Advance the commit number
@@ -119,7 +124,7 @@ int main(int argc, const char * argv[])
     cout << endl;
     */
 
-    writeToFile(nodes, edges);
+    writeToFile(outFile, nodes, edges);
 
     cout << "End\n";
     return 0;
@@ -188,9 +193,17 @@ void addEdge(int source, int target, EdgeMap &edges)
     }
 }
 
-void writeToFile(const NodeMap &nodes, const EdgeMap &edges)
+void writeToFile(string outFile, const NodeMap &nodes, const EdgeMap &edges)
 {
-    ofstream file ("example.gexf");
+    // Add file extension if missing
+    if (outFile.size() <=5) {
+        outFile.append(".gexf");
+    } else if (outFile.substr(outFile.size()-5) != ".gexf") {
+        outFile.append(".gexf");
+    }
+    
+    // Open file for writing
+    ofstream file (outFile);
     if (file.is_open())
     {
         file << R"(<?xml version="1.0" encoding="UTF-8"?>
