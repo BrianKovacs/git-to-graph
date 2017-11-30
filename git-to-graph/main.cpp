@@ -95,35 +95,6 @@ int main(int argc, const char * argv[])
 
     cout << "Commits:\t" << c << endl << "Files:\t" << f << endl;
 
-    /*
-    // Print all nodes
-    NodeMap::iterator i;
-    cout << "\nNode Map: \n";
-    cout << "\tDEG\tFILE\n";
-    for (i = nodes.begin(); i != nodes.end(); ++i)
-    {
-        cout << '\t' << i->second
-        << '\t' << i->first << '\n';
-    }
-    cout << endl;
-    */
-
-    /*
-    // Print all edges
-    EdgeMap::iterator j;
-    cout << "\nEdge Map: \n";
-    cout << "\tW\tEDGE\n";
-    for (j = edges.begin(); j != edges.end(); ++j)
-    {
-        cout << j->first << endl;
-        map<int, int>::const_iterator k;
-        for(k=j->second.begin(); k!=j->second.end(); ++k){
-            cout << "  -" << k->first << ':' << k->second << endl;
-        }
-    }
-    cout << endl;
-    */
-
     writeToFile(outFile, nodes, edges);
 
     cout << "End\n";
@@ -153,14 +124,6 @@ int addNode(const string &file, const string &status, int commit, NodeMap &nodes
 
 void createEdges(const vector<int> &edgeGroup, int commit, EdgeMap &edges)
 {
-    /*
-    // Print all fils grouped by commit
-    cout << "Commit " << commit << endl;
-    vector<int>::const_iterator t;
-    for(t=edgeGroup.begin(); t!=edgeGroup.end(); ++t){
-        cout << '\t' << (*t) << endl;
-    }
-     */
     vector<int>::const_iterator i;
     vector<int>::const_iterator j;
     for(i=edgeGroup.begin(); i!=edgeGroup.end(); ++i){
